@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo Experiment</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>Image Transformation</h1>
+        <p>Upload an image to apply the effect</p>
+    </header>
+    <main>
+        <div class="panel" id="input-panel">
+            <h2>Your Image</h2>
+            <div class="image-placeholder" id="image-preview-container">
+                <img id="image-preview" src="" alt="Your uploaded image preview" style="display: none;">
+                <span>Click "Choose Image" to start</span>
+            </div>
+            <input type="file" id="image-upload" accept="image/*" style="display: none;">
+            <button id="choose-image-btn" class="button">Choose Image</button>
+        </div>
+        <div class="panel" id="output-panel">
+            <h2>Result</h2>
+            <div class="image-placeholder" id="result-container">
+                <div class="info-text">Your transformed image will appear here.</div>
+            </div>
+            <a id="download-link" class="button" style="display: none;" download="result.png">Download</a>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
