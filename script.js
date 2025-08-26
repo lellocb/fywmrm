@@ -44,23 +44,43 @@ imageUpload.addEventListener("change", (event) => {
 
 async function generateImage(uploadedImageBase64) {
     setLoadingState(true);
+    
+    // This payload is correct.
     const inputPayload = { ...HARDCODED_SETTINGS, input_image: uploadedImageBase64 };
+    
     try {
         const initialResponse = await fetch(API_PROXY_ENDPOINT, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ version: MODEL_VERSION, input: inputPayload }),
+            // --- THIS IS THE CORRECTED PART ---
+            // The body should be an object with an "input" key.
+            // We are no longer sending a "version" key.
+            body: JSON.stringify({ input: inputPayload }),
         });
-        if (!initialResponse.ok) throw new Error((await initialResponse.json()).detail);
+
+        if (!initialResponse.ok) {
+            const error = await initialResponse.json();
+            // Try to get a more specific error message from Replicate
+            throw new Error(error.detail || "An error occurred while starting the prediction.");
+        }
+
         let prediction = await initialResponse.json();
+        
+        // Polling logic is correct and stays the same
         while (prediction.status !== "succeeded" && prediction.status !== "failed") {
             await new Promise(resolve => setTimeout(resolve, 1000));
             const pollResponse = await fetch(`${API_PROXY_ENDPOINT}/${prediction.id}`);
             prediction = await pollResponse.json();
         }
-        if (prediction.status === "failed") throw new Error(prediction.error);
+        
+        if (prediction.status === "failed") {
+            throw new Error(prediction.error);
+        }
+        
         displayResult(prediction.output[0]);
+
     } catch (error) {
+        console.error("Full error:", error); // Log the full error for debugging
         displayError(error.message);
     } finally {
         setLoadingState(false);
@@ -94,3 +114,4 @@ async function setupDownload(imageUrl) {
         downloadLink.target = "_blank";
     }
 }
+
