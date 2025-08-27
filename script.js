@@ -67,7 +67,7 @@ async function generateImage(uploadedImageBase64) {
             prediction = await pollResponse.json();
         }
         if (prediction.status === "failed") throw new Error(prediction.error);
-        displayResult(prediction.output[0]);
+        displayResult(prediction.output);
     } catch (error) {
         console.error("Full error:", error);
         displayError(error.message);
@@ -96,3 +96,4 @@ async function setupDownload(imageUrl) {
         downloadLink.target = "_blank";
     }
 }
+
