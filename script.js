@@ -1,12 +1,7 @@
 // --- ❗ ACTION REQUIRED: CONFIGURE YOUR STYLE HERE ❗ ---
 const HARDCODED_SETTINGS = {
-    // 1. Find a LoRA file online (e.g., on huggingface.co) and paste its URL here.
     lora_weights: "https://huggingface.co/myapps/kontext-fywmrem/resolve/main/kontext_fywmrm_v2_000001500.safetensors",
-    
-    // 2. Add the trigger words for the LoRA. Check the LoRA's page for these.
     prompt: "remove the watermark",
-
-    // 3. (Optional) Fine-tune the parameters.
     lora_strength: 1.0,
     guidance: 2.5,
     num_inference_steps: 30,
@@ -40,7 +35,6 @@ imageUpload.addEventListener("change", (event) => {
     reader.readAsDataURL(file);
 });
 
-// --- REVISED UI LOGIC ---
 function startLoadingUI() {
     chooseImageBtn.disabled = true;
     chooseImageBtn.textContent = "Processing...";
@@ -52,44 +46,33 @@ function stopLoadingUI() {
     chooseImageBtn.disabled = false;
     chooseImageBtn.textContent = "Choose Another Image";
 }
-// -----------------------
 
 async function generateImage(uploadedImageBase64) {
-    startLoadingUI(); // <-- Use the new function to set the loading state
-
+    startLoadingUI();
     const inputPayload = { ...HARDCODED_SETTINGS, input_image: uploadedImageBase64 };
-
     try {
         const initialResponse = await fetch(API_PROXY_ENDPOINT, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ input: inputPayload }),
         });
-
         if (!initialResponse.ok) {
             const error = await initialResponse.json();
             throw new Error(error.detail || "An error occurred while starting the prediction.");
         }
-
         let prediction = await initialResponse.json();
-        
         while (prediction.status !== "succeeded" && prediction.status !== "failed") {
             await new Promise(resolve => setTimeout(resolve, 1000));
             const pollResponse = await fetch(`${API_PROXY_ENDPOINT}/${prediction.id}`);
             prediction = await pollResponse.json();
         }
-        
-        if (prediction.status === "failed") {
-            throw new Error(prediction.error);
-        }
-        
-        displayResult(prediction.output[0]); // This will now work and not be overwritten
-
+        if (prediction.status === "failed") throw new Error(prediction.error);
+        displayResult(prediction.output[0]);
     } catch (error) {
         console.error("Full error:", error);
         displayError(error.message);
     } finally {
-        stopLoadingUI(); // <-- Use the new function to just reset the button
+        stopLoadingUI();
     }
 }
 
