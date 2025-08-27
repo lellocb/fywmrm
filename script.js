@@ -14,11 +14,9 @@ const HARDCODED_SETTINGS = {
 };
 // ----------------------------------------------------
 
-// This URL is set automatically by Coolify during deployment.
-const YOUR_BACKEND_URL = "https://fywmrm.ideamint.space"; 
+// The backend URL is now set directly in the code.
+const YOUR_BACKEND_URL = "https://fywmrm.ideamint.space";
 const API_PROXY_ENDPOINT = `${YOUR_BACKEND_URL}/api/predictions`;
-
-// NO MORE MODEL_VERSION NEEDED!
 
 const chooseImageBtn = document.getElementById("choose-image-btn");
 const imageUpload = document.getElementById("image-upload");
@@ -42,31 +40,39 @@ imageUpload.addEventListener("change", (event) => {
     reader.readAsDataURL(file);
 });
 
+// --- REVISED UI LOGIC ---
+function startLoadingUI() {
+    chooseImageBtn.disabled = true;
+    chooseImageBtn.textContent = "Processing...";
+    resultContainer.innerHTML = '<div class="loader"></div>';
+    downloadLink.style.display = "none";
+}
+
+function stopLoadingUI() {
+    chooseImageBtn.disabled = false;
+    chooseImageBtn.textContent = "Choose Another Image";
+}
+// -----------------------
+
 async function generateImage(uploadedImageBase64) {
-    setLoadingState(true);
-    
-    // This payload is correct.
+    startLoadingUI(); // <-- Use the new function to set the loading state
+
     const inputPayload = { ...HARDCODED_SETTINGS, input_image: uploadedImageBase64 };
-    
+
     try {
         const initialResponse = await fetch(API_PROXY_ENDPOINT, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            // --- THIS IS THE CORRECTED PART ---
-            // The body should be an object with an "input" key.
-            // We are no longer sending a "version" key.
             body: JSON.stringify({ input: inputPayload }),
         });
 
         if (!initialResponse.ok) {
             const error = await initialResponse.json();
-            // Try to get a more specific error message from Replicate
             throw new Error(error.detail || "An error occurred while starting the prediction.");
         }
 
         let prediction = await initialResponse.json();
         
-        // Polling logic is correct and stays the same
         while (prediction.status !== "succeeded" && prediction.status !== "failed") {
             await new Promise(resolve => setTimeout(resolve, 1000));
             const pollResponse = await fetch(`${API_PROXY_ENDPOINT}/${prediction.id}`);
@@ -77,21 +83,14 @@ async function generateImage(uploadedImageBase64) {
             throw new Error(prediction.error);
         }
         
-        displayResult(prediction.output[0]);
+        displayResult(prediction.output[0]); // This will now work and not be overwritten
 
     } catch (error) {
-        console.error("Full error:", error); // Log the full error for debugging
+        console.error("Full error:", error);
         displayError(error.message);
     } finally {
-        setLoadingState(false);
+        stopLoadingUI(); // <-- Use the new function to just reset the button
     }
-}
-
-function setLoadingState(isLoading) {
-    chooseImageBtn.disabled = isLoading;
-    chooseImageBtn.textContent = isLoading ? "Processing..." : "Choose Another Image";
-    resultContainer.innerHTML = isLoading ? '<div class="loader"></div>' : '<div class="info-text">Your transformed image will appear here.</div>';
-    downloadLink.style.display = "none";
 }
 
 function displayResult(imageUrl) {
@@ -114,5 +113,3 @@ async function setupDownload(imageUrl) {
         downloadLink.target = "_blank";
     }
 }
-
-
