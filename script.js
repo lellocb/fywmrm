@@ -15,7 +15,7 @@ const HARDCODED_SETTINGS = {
 // ----------------------------------------------------
 
 // This URL is set automatically by Coolify during deployment.
-const YOUR_BACKEND_URL = "@@YOUR_BACKEND_URL"; 
+const YOUR_BACKEND_URL = "https://fywmrm.ideamint.space"; 
 const API_PROXY_ENDPOINT = `${YOUR_BACKEND_URL}/api/predictions`;
 
 // NO MORE MODEL_VERSION NEEDED!
@@ -114,4 +114,5 @@ async function setupDownload(imageUrl) {
         downloadLink.target = "_blank";
     }
 }
+
 
