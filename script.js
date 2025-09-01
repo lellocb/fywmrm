@@ -1,10 +1,10 @@
 // --- ❗ ACTION REQUIRED: CONFIGURE YOUR STYLE HERE ❗ ---
 const HARDCODED_SETTINGS = {
-    lora_weights: "https://huggingface.co/myapps/kontext-fywmrem/resolve/main/kontext_fywmrm_v2_000001500.safetensors",
+    lora_weights: "https://huggingface.co/myapps/kontext-fywmrem/resolve/main/kontext_fywmrm_v3_000001000.safetensors",
     prompt: "remove the watermark",
     lora_strength: 1.0,
-    guidance: 2.5,
-    num_inference_steps: 30,
+    guidance: 4,
+    num_inference_steps: 25,
     aspect_ratio: "match_input_image",
 };
 // ----------------------------------------------------
@@ -96,4 +96,5 @@ async function setupDownload(imageUrl) {
         downloadLink.target = "_blank";
     }
 }
+
 
